@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 Fields to be used in forms.
 """
+from __future__ import unicode_literals
 import re
 
 from django.forms import ValidationError

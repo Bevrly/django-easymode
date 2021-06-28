@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
 """
 Contains an instance of Serializer and extends it to allow for recusive
 serialization of django models with foreign keys.
 """
+from __future__ import unicode_literals
 import sys
 from StringIO import StringIO
 
 from django.conf import settings
 from django.core.serializers import xml_serializer
-from django.utils.encoding import smart_unicode, force_unicode
+from django.utils.encoding import smart_unicode, force_text
 
 from easymode.tree.introspection import get_default_field_descriptors, \
     get_foreign_key_desciptors, get_generic_relation_descriptors
@@ -155,7 +157,7 @@ class RecursiveXmlSerializer(xml_serializer.Serializer):
         if hasattr(field, 'extra_attrs'):
             if field.extra_attrs:
                 for (key, value) in field.extra_attrs.iteritems():
-                    field_attrs[key] = force_unicode(value)
+                    field_attrs[key] = force_text(value)
 
             field_attrs['name'] = field.name.replace('_', '.')
 

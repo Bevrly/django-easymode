@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
 """
 Fields used by easymode's i18n.meta package which modifies a class to enable i18n.
 """
+from __future__ import unicode_literals
+import logging
+
 from django.conf import settings
 from django.utils import translation
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation.trans_real import translation as translation_catalogs
 
 from easymode.i18n.meta.value import GettextVO
@@ -11,6 +15,7 @@ from easymode.i18n.meta.utils import get_localized_property, valid_for_gettext, 
     get_fallback_languages, get_localized_field_name
 from easymode.utils.languagecode import get_real_fieldname
 from easymode.utils.standin import standin_for
+
 
 class DefaultFieldDescriptor(property):
     """
@@ -27,8 +32,8 @@ class DefaultFieldDescriptor(property):
     def __get__(self, obj, typ=None):
         """
         Read the localised version of the field this descriptor emulates.
-        First try to see if the localised field is really set.
-        If not, then use ugettext_lazy to find a tranlation in the current language
+        First try to see if the localized field is really set.
+        If not, then use ugettext_lazy to find a translation in the current language
         for this field.
         """
         # self must be returned in a getattr context.
@@ -37,26 +42,23 @@ class DefaultFieldDescriptor(property):
 
         current_language = translation.get_language()
         real_field_name = get_real_fieldname(self.name, current_language)
-
         vo = GettextVO()
-        
+
         # first check if the database contains the localized data
         vo.stored_value = getattr(obj, real_field_name)
+        if valid_for_gettext(vo.stored_value):
+            return vo.stored_value
         if getattr(settings, 'I18N_NOFALLBACK', False):
             return vo.stored_value
         # the database does not have our localized data.
         # check if we have a translation, first get the msgid, as a unicode string.
-        vo.msgid = get_localized_property(obj, self.name, getattr(settings, 'MSGID_LANGUAGE', settings.LANGUAGE_CODE))
+        vo.msgid = get_localized_property(obj, self.name, getattr(settings, 'MSGID_LANGUAGE',
+                                                                  settings.LANGUAGE_CODE))
 
         # check the translation in the current language
         # but avoid empty string and None 
         if valid_for_gettext(vo.msgid):
-            vo.msg = self.to_python(translation.ugettext(force_unicode(vo.msgid)))
-        elif valid_for_gettext(vo.stored_value):
-            # we can not use the msgid for gettext but we did find a valid
-            # translation in the database. Fine we stop here and return that
-            # value. No need for a standin, because we don't have a catalog value.
-            return vo.stored_value
+            vo.msg = self.to_python(translation.ugettext(force_text(vo.msgid)))
         else:
             # we can not use the msgid for gettext lookups, so there is no
             # point in trying. Check for fallback languages in database.
@@ -84,7 +86,7 @@ class DefaultFieldDescriptor(property):
                     # of the fallback languages.
                     for fallback in get_fallback_languages():
                         catalog = translation_catalogs(fallback)
-                        msg = catalog.ugettext(force_unicode(vo.msgid))
+                        msg = catalog.ugettext(force_text(vo.msgid))
                         if self.to_python(msg) != vo.msgid:
                             vo.fallback = self.to_python(msg)
                             break
@@ -93,9 +95,9 @@ class DefaultFieldDescriptor(property):
                     # to the msgid, the fallback is the winner.
                     vo.msg = vo.fallback
 
-        # if we came here we collected data from the catalog and we should return
-        # a standin. A standin is the return value, with some extra properties.
-        # see GettextVO for the extra properties added.
+        # If we arrived here, we collected data from the catalog and we should return
+        # a stand-in. A stand-in is the return value, with some extra properties.
+        # See GettextVO for the extra properties added.
         if valid_for_gettext(vo.stored_value):
             vo.standin_value_is_from_database = True
             # database always wins
@@ -127,6 +129,6 @@ class DefaultFieldDescriptor(property):
     def value_to_string(self, obj):
         """This descriptor acts as a Field, as far as the serializer is concerned."""
         try:
-            return force_unicode(self.__get__(obj))
+            return force_text(self.__get__(obj))
         except TypeError:
             return str(self.__get__(obj))

@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import re
 import time
-
+from builtins import map
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.middleware.locale import LocaleMiddleware
@@ -19,44 +21,45 @@ USE_SHORT_LANGUAGE_CODES = getattr(settings, 'USE_SHORT_LANGUAGE_CODES', False)
 ################################################################################
 
 MATCH_LANGUAGE_CODE = re.compile(
-    r"^/(%s)/.*" % "|".join(map(lambda l: l[0], settings.LANGUAGES)))
+    r"^/(%s)/.*" % "|".join(list(map(lambda l: l[0], settings.LANGUAGES))))
 MATCH_SHORT_LANGUAGE_CODE = re.compile(
     r"^/(%s)/.*" % "|".join(get_short_language_codes()))
 
 if USE_SHORT_LANGUAGE_CODES:
     HREF_REGEX = re.compile(
-        ur'<a([^>]+)href="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
-            "|".join(map(lambda l: l + "/" , get_short_language_codes())), 
+        r'<a([^>]+)href="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
+            "|".join(list(map(lambda l: l + "/" , get_short_language_codes()))),
             settings.MEDIA_URL[1:], 
             settings.ADMIN_MEDIA_PREFIX[1:]
         )
     )
     FORM_REGEX = re.compile(
-        ur'<form([^>]+)action="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
-            "|".join(map(lambda l: l + "/" , get_short_language_codes())),
+        r'<form([^>]+)action="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
+            "|".join(list(map(lambda l: l + "/" , get_short_language_codes()))),
              settings.MEDIA_URL[1:],
              settings.ADMIN_MEDIA_PREFIX[1:]
         )
     )
 else:
     HREF_REGEX = re.compile(
-        ur'<a([^>]+)href="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
-            "|".join(map(lambda l: l[0] + "/" , settings.LANGUAGES)), 
+        r'<a([^>]+)href="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
+            "|".join(list(map(lambda l: l[0] + "/" , settings.LANGUAGES))),
             settings.MEDIA_URL[1:], 
             settings.ADMIN_MEDIA_PREFIX[1:]
         )
     )
     FORM_REGEX = re.compile(
-        ur'<form([^>]+)action="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
-            "|".join(map(lambda l: l[0] + "/" , settings.LANGUAGES)),
+        r'<form([^>]+)action="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
+            "|".join(list(map(lambda l: l[0] + "/" , settings.LANGUAGES))),
              settings.MEDIA_URL[1:],
              settings.ADMIN_MEDIA_PREFIX[1:]
         )
     )
 
 ################################################################################
-# helper functions
+# Helper functions
 ################################################################################
+
 
 def has_lang_prefix(path):
     if USE_SHORT_LANGUAGE_CODES:
@@ -72,8 +75,9 @@ def has_lang_prefix(path):
         return False
 
 ################################################################################
-# middlewares
+# Middleware
 ################################################################################
+
 
 class NoVaryOnCookieSessionMiddleWare(SessionMiddleware):
     """
@@ -108,6 +112,7 @@ class NoVaryOnCookieSessionMiddleWare(SessionMiddleware):
                         path=settings.SESSION_COOKIE_PATH,
                         secure=settings.SESSION_COOKIE_SECURE or None)
         return response
+
 
 class LocaleFromUrlMiddleWare(LocaleMiddleware):
     """

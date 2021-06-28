@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 """
 Lots of utility functions that can be used when
 implementing a multi lingual django app.
 """
+from __future__ import unicode_literals
+from builtins import map
 import re
 
 from django.conf import settings
@@ -40,9 +43,9 @@ def get_short_language_codes():
 # define regular expressions. they are different, depending on whether we are using full language
 # codes, eg 'en-us' or we want to show the abbreviated versions in the url, eg. 'en'
 if USE_SHORT_LANGUAGE_CODES:
-    STRIP_LANGUAGE_CODE_REGEX = re.compile(ur'/(?:%s)/' % "|".join(get_short_language_codes()))
+    STRIP_LANGUAGE_CODE_REGEX = re.compile(r'/(?:%s)/' % "|".join(get_short_language_codes()))
 else:
-    STRIP_LANGUAGE_CODE_REGEX = re.compile(ur'/(?:%s)/' % "|".join(get_language_codes()))
+    STRIP_LANGUAGE_CODE_REGEX = re.compile(r'/(?:%s)/' % "|".join(get_language_codes()))
 
 def get_all_language_codes():
     """
@@ -149,7 +152,7 @@ def fix_language_code(url, current_language):
         return stripped_url
     
     # add the language code to the url        
-    return u"/%s%s" % (get_shorthand_from_language_code(current_language), stripped_url)
+    return "/%s%s" % (get_shorthand_from_language_code(current_language), stripped_url)
 
 def get_real_fieldname(field, lang):
     """
@@ -217,6 +220,6 @@ def get_language_codes_as_disjunction():
         )
         
     """
-    language_codes = map(get_shorthand_from_language_code, get_language_codes())
+    language_codes = list(map(get_shorthand_from_language_code, get_language_codes()))
     languages = "|".join(language_codes)
     return languages

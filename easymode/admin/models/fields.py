@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
 """
 Fields to be used in models.
 """
+from __future__ import unicode_literals
 import logging
 import os
 import re
 import warnings
 from StringIO import StringIO
 from time import time
-from urllib import urlopen
+from future.moves.urllib.request import urlopen
 from xml import sax
 
 from django.conf import settings

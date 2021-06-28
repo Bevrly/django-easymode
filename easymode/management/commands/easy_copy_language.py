@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     easy_copy_language <source locale> <target locale> <app>
     
@@ -9,11 +10,12 @@
     
     will copy the en fields into the de locale for myapp.mymodel
 """
+from __future__ import unicode_literals
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import get_models, get_app, get_model
 from django.utils import translation
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 
 from easymode.utils.languagecode import get_real_fieldname
 
@@ -50,30 +52,30 @@ class Command(BaseCommand):
                             source_field_value = getattr(instance, source_field)
                             target_field_value = getattr(instance, target_field)
 
-                            if target_field_value in (None, u'')\
-                                and source_field_value not in (None, u''):
-                                setattr(instance, target_field, force_unicode(source_field_value))
+                            if target_field_value in (None, '')\
+                                and source_field_value not in (None, ''):
+                                setattr(instance, target_field, force_text(source_field_value))
                                 update_instances.add(instance)
-                                messages.append(u"%s %s %s will become %s" % (model_full_name, instance, target_field, force_unicode(source_field_value)))
+                                messages.append(u"%s %s %s will become %s" % (model_full_name, instance, target_field, force_text(source_field_value)))
 
                 if len(update_instances):
-                    if self.ask_for_confirmation(messages, u'%s.%s' % (model._meta.app_label, model._meta.module_name)):
+                    if self.ask_for_confirmation(messages, '%s.%s' % (model._meta.app_label, model._meta.module_name)):
                         for update_instance in update_instances:
                             print u"saving %s" % update_instance
                             update_instance.save()
                 
                 
     def ask_for_confirmation(self, messages, model_full_name):
-        print u'\nData to update "%s":' % model_full_name
+        print '\nData to update "%s":' % model_full_name
         for message in messages:
-            print u'   %s' % message
+            print '   %s' % message
         while True:
-            prompt = u'\nAre you sure that you want to update %s: (y/n) [n]: ' % model_full_name
+            prompt = '\nAre you sure that you want to update %s: (y/n) [n]: ' % model_full_name
             answer = raw_input(prompt).strip()
             if answer == '':
                 return False
             elif answer not in ('y', 'n', 'yes', 'no'):
-                print u'Please answer yes or no'
+                print 'Please answer yes or no'
             elif answer == 'y' or answer == 'yes':
                 return True
             else:

@@ -11,7 +11,7 @@ from easymode.utils import first_match
 
 
 def valid_for_gettext(value):
-    """Gettext acts weird when empty string is passes, and passing none would be even weirder"""
+    """Gettext acts weird when empty string is passed; and passing None would be even weirder"""
     return value not in (None, "")
     
 def get_fallback_languages():

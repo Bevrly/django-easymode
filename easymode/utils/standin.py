@@ -1,4 +1,7 @@
-from types import NoneType
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from builtins import map
+import types
 from django.utils.text import capfirst
 
 __all__ = ('standin_for',)
@@ -49,7 +52,7 @@ def standin_for(obj, **attrs):
     Also, since it is impossible to extend :class:`bool` and :class:`~types.NoneType` you can never get::
     
         isinstance(standin, bool)
-        isinstance(standin, NoneType)
+        instance(standin, NoneType)
     
     To work with anything else but the real thing.
     This is why :class:`bool` and :class:`~types.NoneType` instances are returned unmodified:
@@ -69,7 +72,7 @@ def standin_for(obj, **attrs):
     """
     
     obj_class = obj.__class__
-    if obj_class is bool or obj_class is NoneType:
+    if obj_class is bool or isinstance(obj_class, type(None)):
         # we can not have a standing for bool or NoneType
         # because too many code uses a is True or a is None.
         # Also you can never get isinstance(standin, bool) and
@@ -88,7 +91,7 @@ def standin_for(obj, **attrs):
     attrs['__reduce_ex__']= __reduce__
 
     # create a readable class name eg. unicodeStandinWithTitleAndDescriptionAttributes
-    additions = 'And'.join(map(capfirst, attr_names))
+    additions = 'And'.join(list(map(capfirst, attr_names)))
     id = "%sStandInWith%sAttributes" % (obj_class.__name__, additions.encode('ascii', 'ignore'))
     
     # if we allready know this type don't create it again.

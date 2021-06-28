@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains utils for:
 
@@ -6,13 +7,13 @@ Mutex
 XML parser/generator that handles unknown entities.
 Controlling recursion depth
 """
+from __future__ import unicode_literals
+from future.moves.urllib.parse import urlparse, urlencode
 import errno
 import os
 import tempfile
 import threading
 import time
-import urlparse
-import urllib
 from contextlib import contextmanager
 from hashlib import sha1
 
@@ -61,6 +62,7 @@ def recursion_depth(key):
     except Exception as e:
         RECURSION_LEVEL_DICT.key = 0
         raise e
+
 
 def first_match(predicate, lst):
     """
@@ -214,5 +216,5 @@ def url_add_params(url, **kwargs):
     for pair in kwargs.iteritems():
         params.append(pair)
 
-    parsed_url[3] = urllib.urlencode(params)
+    parsed_url[3] = urlencode(params)
     return urlparse.urlunsplit(parsed_url)

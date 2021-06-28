@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.forms import IntegerField
 from django.forms.models import BaseInlineFormSet
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 
 from easymode.tree.admin.widgets.foreignkey import LinkWidget
 
@@ -29,13 +31,13 @@ class RecursiveInlineFormSet(BaseInlineFormSet):
         # show the link widget if the item allready exists
         if hidden_pk_field.initial is not None: 
             widget_attrs['url'] = reverse('admin:%s_%s_change' % (options.app_label, options.object_name.lower()), args=[hidden_pk_field.initial])
-            widget_attrs['label'] = 'Edit %s' % force_unicode(options.verbose_name)
+            widget_attrs['label'] = 'Edit %s' % force_text(options.verbose_name)
             
         # if the parent model exists but the item doesn't show the add button
         elif self.instance.pk is not None:
             url = reverse('admin:%s_%s_add' % (options.app_label, options.object_name.lower()))
             widget_attrs['url'] = '%s?%s=%s' % (url, self.fk.name, self.instance.pk)
-            widget_attrs['label'] = 'Add %s' % force_unicode(options.verbose_name)
+            widget_attrs['label'] = 'Add %s' % force_text(options.verbose_name)
             widget_attrs['popup'] = True
             
         # if the parent model does not exist use an empty link widget.

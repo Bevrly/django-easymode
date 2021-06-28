@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains a modeladmin class that shows links to all related items in its change_view.
 
@@ -5,11 +6,12 @@ If you want to use :class:`InvisibleModelAdmin` make sure easymode comes before
 ``django.contrib.admin`` in the ``INSTALLED_APPS`` because it has to 
 override admin/index.html to make it work.
 """
+from __future__ import unicode_literals
 from django.http import HttpResponseRedirect
 from django.forms.models import  modelformset_factory
 from django.core import urlresolvers
 from django.conf import settings
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 
 from easymode.tree.introspection import get_foreign_key_desciptors
 from easymode.tree.admin.formsets import VisiblePrimaryKeyFormset
@@ -39,7 +41,7 @@ class _CanFindParentLink(object):
             info = (self.admin_site.name, parent._meta.app_label, parent_type_name)
             
             parent_link_data['parent_model'] = strip_language_code(urlresolvers.reverse("%s:%s_%s_change" % info, args=[parent_id]))
-            parent_link_data['parent_name'] = "%s %s" % (force_unicode(parent._meta.verbose_name), parent_name)
+            parent_link_data['parent_name'] = "%s %s" % (force_text(parent._meta.verbose_name), parent_name)
         
         return parent_link_data
 
